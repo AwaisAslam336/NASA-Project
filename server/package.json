@@ -1,0 +1,16 @@
+{
+  "name": "nasa-project-api",
+  "version": "1.0.0",
+  "description": "NASA Mission Control API",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
