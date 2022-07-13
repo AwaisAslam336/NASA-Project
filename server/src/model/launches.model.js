@@ -7,7 +7,7 @@ let launch = {
     rocket: 'Explorer IS1',
     launchDate: new Date('December 27, 2030'),
     target: 'kepler-442 b',
-    customer: ['NASA', 'ZTM'],
+    customers: ['NASA', 'ZTM'],
     upcoming: true,
     success: true
 }
@@ -22,7 +22,7 @@ function addNewLaunch(launch) {
     newFlightNumber++;
     launches.set(newFlightNumber, Object.assign(launch, {
         flightNumber: newFlightNumber,
-        customer: ['Easy Learning', 'NASA'],
+        customers: ['Easy Learning', 'NASA'],
         upcoming: true,
         success: true
     }));
