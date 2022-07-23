@@ -1,19 +1,42 @@
 const launchesDatabase = require('./launches.mongo');
 const planetsDatabase = require('./planets.mongo');
-let launches = new Map();
+const axios = require('axios');
 let DefaultFlightNumber = 100;
 
 // //example launch data
 // let launch = {
-//     flightNumber: 100,
-//     mission: 'Kepler Exploration X',
-//     rocket: 'Explorer IS1',
-//     launchDate: new Date('December 27, 2030'),
-//     target: 'kepler-442 b',
-//     customers: ['NASA', 'ZTM'],
-//     upcoming: true,
-//     success: true
+//     flightNumber: 100, //flight_number
+//     mission: 'Kepler Exploration X', //name
+//     rocket: 'Explorer IS1', //rocket.name
+//     launchDate: new Date('December 27, 2030'), //date_local
+//     target: 'kepler-442 b', //not applicable
+//     customers: ['NASA', 'ZTM'],//payload.customers for each payload
+//     upcoming: true, //upcoming
+//     success: true //success
 // }
+const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
+async function loadLaunchesData() {
+    const response = await axios.post(SPACEX_API_URL, {
+        query: {},
+        options: {
+            populate: [
+                {
+                    path: 'rocket',
+                    select: {
+                        name: 1
+                    }
+                },
+                {
+                    path: 'payloads',
+                    select: {
+                        customers: 1
+                    }
+                }
+            ]
+        }
+    });
+    console.log(response.data.docs[0]);
+}
 
 async function saveLaunch(launch) {
     const planet = await planetsDatabase.findOne({
@@ -61,7 +84,7 @@ async function abortLaunchById(launchId) {
             upcoming: false,
             success: false
         });
-        console.log(aborted);
+    console.log(aborted);
     return aborted.matchedCount === 1 && aborted.modifiedCount === 1;
 }
 
@@ -69,5 +92,6 @@ module.exports = {
     getAllLaunches,
     addNewLaunch,
     existsLaunchWithId,
-    abortLaunchById
+    abortLaunchById,
+    loadLaunchesData
 }
