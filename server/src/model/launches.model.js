@@ -3,20 +3,9 @@ const planetsDatabase = require('./planets.mongo');
 const axios = require('axios');
 let DefaultFlightNumber = 100;
 
-// //example launch data
-// let launch = {
-//     flightNumber: 100, //flight_number
-//     mission: 'Kepler Exploration X', //name
-//     rocket: 'Explorer IS1', //rocket.name
-//     launchDate: new Date('December 27, 2030'), //date_local
-//     target: 'kepler-442 b', //not applicable
-//     customers: ['NASA', 'ZTM'],//payload.customers for each payload
-//     upcoming: true, //upcoming
-//     success: true //success
-// }
 const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
 
-async function populateLaunches(){
+async function populateLaunches() {
     const response = await axios.post(SPACEX_API_URL, {
         query: {},
         options: {
@@ -38,6 +27,10 @@ async function populateLaunches(){
         }
     });
 
+    if(response.status !== 200){
+        console.log('Problem downloading launch data from SpaceX API');
+        throw new Error('Launch data download failed!');
+    }
     const launchDocs = response.data.docs;
 
     for (const launchDoc of launchDocs) {
@@ -52,7 +45,7 @@ async function populateLaunches(){
             upcoming: launchDoc.upcoming,
             success: launchDoc.success
         }
-        console.log(launch.mission);
+        await saveLaunch(launch);
     }
 }
 
@@ -65,7 +58,7 @@ async function loadLaunchesData() {
 
     if (firstLaunch) {
         console.log('Launch data already loaded');
-    }else{
+    } else {
         await populateLaunches();
     }
 }
@@ -83,16 +76,22 @@ async function getLatestFlightNumber() {
 }
 
 async function saveLaunch(launch) {
+    await launchesDatabase.findOneAndUpdate(
+        { flightNumber: launch.flightNumber },
+        launch,
+        { upsert: true }
+    );
+}
+
+async function addNewLaunch(launch) {
+
     const planet = await planetsDatabase.findOne({
         keplerName: launch.target,
     });
     if (!planet) {
         throw new Error('No matching planet found');
     }
-    await launchesDatabase.findOneAndUpdate({ flightNumber: launch.flightNumber }, launch, { upsert: true });
-}
 
-async function addNewLaunch(launch) {
     const newFlightNumber = await getLatestFlightNumber() + 1;
 
     const newLaunch = Object.assign(launch, {
