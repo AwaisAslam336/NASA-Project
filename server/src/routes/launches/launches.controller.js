@@ -1,8 +1,11 @@
 const { json } = require('express');
 const { getAllLaunches, addNewLaunch, existsLaunchWithId, abortLaunchById } = require('../../model/launches.model');
+const { getPagination } = require('../../services/query');
 
 async function httpGetAllLaunches(req, res) {
-    return res.status(200).json(await getAllLaunches());
+    const { limit, skip } = getPagination(req.query);
+    const launches = await getAllLaunches(limit, skip);
+    return res.status(200).json(launches);
 }
 
 async function httpAddNewLaunch(req, res) {

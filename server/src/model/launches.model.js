@@ -27,7 +27,7 @@ async function populateLaunches() {
         }
     });
 
-    if(response.status !== 200){
+    if (response.status !== 200) {
         console.log('Problem downloading launch data from SpaceX API');
         throw new Error('Launch data download failed!');
     }
@@ -63,8 +63,12 @@ async function loadLaunchesData() {
     }
 }
 
-async function getAllLaunches() {
-    return await launchesDatabase.find({}, { '_id': 0, '__v': 0 });
+async function getAllLaunches(limit, skip) {
+    return await launchesDatabase
+        .find({}, { '_id': 0, '__v': 0 })
+        .sort({ flightNumber: 1 })
+        .skip(skip)
+        .limit(limit);
 }
 
 async function getLatestFlightNumber() {
