@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "csv-parse": "^5.2.0"
-  },
   "name": "nasa-project",
   "version": "1.0.0",
   "main": "index.js",
